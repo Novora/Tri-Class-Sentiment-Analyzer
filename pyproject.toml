@@ -20,12 +20,14 @@ classifiers = [
 ]
 
 dependencies = [
+    "openai",
     "python-dotenv",
     "coloredlogs",
     "appdirs",
     "tomli-w",
     "torch",
-    "motor"
+    "motor",
+    "tqdm"
 ]
 
 [project.optional-dependencies]
