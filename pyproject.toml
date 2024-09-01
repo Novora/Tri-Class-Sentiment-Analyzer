@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "TCSA"
+dynamic = ["version"]
+description = "Categorises text by sentiment into Positive, Negative or Neutral."
+authors = [
+    {name = "James David Clarke", email = "james@novora.ai"},
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "python-dotenv",
+    "coloredlogs",
+    "appdirs",
+    "tomli-w",
+    "torch",
+    "motor"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "mypy",
+]
+
+[project.urls]
+Homepage = "https://github.com/Novora/Tri-Class-Sentiment-Analyzer"
+"Bug Tracker" = "https://github.com/Novora/Tri-Class-Sentiment-Analyzer/issues"
+
+[tool.setuptools]
+packages = ["src"]
+
+[project.scripts]
+tcsa = "src.cli:main"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
