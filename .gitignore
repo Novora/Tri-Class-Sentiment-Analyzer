@@ -162,3 +162,4 @@ cython_debug/
 #.idea/
 prompt.txt
 prompt.log
+data/*.json

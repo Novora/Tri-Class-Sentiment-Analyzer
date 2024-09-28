@@ -27,7 +27,8 @@ dependencies = [
     "tomli-w",
     "torch",
     "motor",
-    "tqdm"
+    "tqdm",
+    "mlflow"
 ]
 
 [project.optional-dependencies]
