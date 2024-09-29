@@ -1,3 +1,5 @@
+# synthetic_data_generator.py
+
 import argparse
 import openai
 import motor.motor_asyncio
@@ -5,7 +7,8 @@ import asyncio
 import time
 from tqdm import tqdm
 import logging
-from openai.error import OpenAIError
+# Remove the problematic import
+# from openai.error import OpenAIError
 from pymongo.errors import PyMongoError
 
 # Configure logging to write to 'progress.log' in the same directory
@@ -34,7 +37,8 @@ async def generate_synthetic_review(sentiment, model_name, max_response_size):
             )
             # Extract the generated text from the response
             return response.choices[0].message.content.strip()
-        except OpenAIError as e:
+        # Catch generic Exception if OpenAIError is not available
+        except Exception as e:
             logging.error(f"OpenAI API error: {str(e)}. Retrying in 10 minutes...")
             await asyncio.sleep(600)  # Wait for 10 minutes before retrying
 
