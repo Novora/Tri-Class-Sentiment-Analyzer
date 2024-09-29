@@ -1,17 +1,12 @@
-# synthetic_data_generator.py
-
 import argparse
 import openai
 from openai import AsyncOpenAI
 
-aclient = AsyncOpenAI(api_key=args.openai_api_key)
 import motor.motor_asyncio
 import asyncio
 import time
 from tqdm import tqdm
 import logging
-# Remove the problematic import
-# from openai.error import OpenAIError
 from pymongo.errors import PyMongoError
 
 # Configure logging to write to 'progress.log' in the same directory
@@ -23,19 +18,24 @@ logging.basicConfig(
 )
 
 # Function to generate synthetic review
-async def generate_synthetic_review(sentiment, model_name, max_response_size):
+async def generate_synthetic_review(sentiment, model_name, max_response_size, aclient):
     while True:
         try:
             # Define the chat message with the system and user roles
             messages = [
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"Generate a review text paragraph with no headings or rating, which is {sentiment} sentiment. Just the text of the review."}
+                {
+                    "role": "user",
+                    "content": f"Generate a review text paragraph with no headings or rating, which is {sentiment} sentiment. Just the text of the review."
+                }
             ]
             # Use the ChatCompletion API
-            response = await aclient.chat.completions.create(model=model_name,
-            messages=messages,
-            max_tokens=max_response_size,
-            temperature=0.7)
+            response = await aclient.chat.completions.create(
+                model=model_name,
+                messages=messages,
+                max_tokens=max_response_size,
+                temperature=0.7
+            )
             # Extract the generated text from the response
             return response.choices[0].message.content.strip()
         # Catch generic Exception if OpenAIError is not available
@@ -59,16 +59,17 @@ def calculate_eta(start_time, progress, total):
     remaining = total - progress
     rate = elapsed_time / progress if progress > 0 else 0
     eta = remaining * rate
-    eta_h, eta_m = divmod(eta / 3600)
-    eta_m = (eta % 3600) // 60
-    return int(eta_h), int(eta_m)
+    eta_h = int(eta // 3600)
+    eta_m = int((eta % 3600) // 60)
+    return eta_h, eta_m
 
 # Main function
 async def main(args):
     # Initialize the OpenAI client
     if args.openai_base_url:
-        # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url=args.openai_base_url)'
-        openai.api_base = args.openai_base_url
+        aclient = AsyncOpenAI(api_key=args.openai_api_key, base_url=args.openai_base_url)
+    else:
+        aclient = AsyncOpenAI(api_key=args.openai_api_key)
 
     # Initialize MongoDB client
     mongo_client = motor.motor_asyncio.AsyncIOMotorClient(args.mongodb_url)
@@ -103,7 +104,12 @@ async def main(args):
         generated = 0
         while generated < required_samples:
             # Generate review and insert into MongoDB with retry logic
-            review_text = await generate_synthetic_review(sentiment, args.openai_model_name, args.openai_max_response_size)
+            review_text = await generate_synthetic_review(
+                sentiment,
+                args.openai_model_name,
+                args.openai_max_response_size,
+                aclient  # Pass the client instance
+            )
             document = {"text": review_text, "sentiment": sentiment_labels[sentiment]}
             await insert_to_mongodb(collection, document)
             generated += 1
