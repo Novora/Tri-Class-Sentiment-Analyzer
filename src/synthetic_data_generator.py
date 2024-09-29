@@ -2,6 +2,9 @@
 
 import argparse
 import openai
+from openai import AsyncOpenAI
+
+aclient = AsyncOpenAI(api_key=args.openai_api_key)
 import motor.motor_asyncio
 import asyncio
 import time
@@ -29,12 +32,10 @@ async def generate_synthetic_review(sentiment, model_name, max_response_size):
                 {"role": "user", "content": f"Generate a review text paragraph with no headings or rating, which is {sentiment} sentiment. Just the text of the review."}
             ]
             # Use the ChatCompletion API
-            response = await openai.ChatCompletion.acreate(
-                model=model_name,
-                messages=messages,
-                max_tokens=max_response_size,
-                temperature=0.7,
-            )
+            response = await aclient.chat.completions.create(model=model_name,
+            messages=messages,
+            max_tokens=max_response_size,
+            temperature=0.7)
             # Extract the generated text from the response
             return response.choices[0].message.content.strip()
         # Catch generic Exception if OpenAIError is not available
@@ -65,8 +66,8 @@ def calculate_eta(start_time, progress, total):
 # Main function
 async def main(args):
     # Initialize the OpenAI client
-    openai.api_key = args.openai_api_key
     if args.openai_base_url:
+        # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url=args.openai_base_url)'
         openai.api_base = args.openai_base_url
 
     # Initialize MongoDB client
