@@ -125,8 +125,7 @@ async def import_checkins(file_path, db, drop_collection, batch_size=1000):
     collection = db['checkin']
     if drop_collection:
         await collection.drop()
-    else:
-        await collection.create_index('_id', unique=True)
+    # No need to create index on '_id' since it's unique by default
 
     total_lines = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
     existing_count = await collection.count_documents({})
@@ -170,8 +169,7 @@ async def import_tips(file_path, db, drop_collection, batch_size=1000):
     collection = db['tip']
     if drop_collection:
         await collection.drop()
-    else:
-        await collection.create_index('_id', unique=True)
+    # No need to create index on '_id' since it's unique by default
 
     total_lines = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
     existing_count = await collection.count_documents({})
