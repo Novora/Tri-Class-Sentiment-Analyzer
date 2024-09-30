@@ -163,3 +163,4 @@ cython_debug/
 prompt.txt
 prompt.log
 data/*.json
+data/*
