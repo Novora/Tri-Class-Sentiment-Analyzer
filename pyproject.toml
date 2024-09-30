@@ -28,7 +28,8 @@ dependencies = [
     "torch",
     "motor",
     "tqdm",
-    "mlflow"
+    "mlflow",
+    "aiofiles"
 ]
 
 [project.optional-dependencies]
